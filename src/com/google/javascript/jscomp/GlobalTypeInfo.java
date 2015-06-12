@@ -1160,8 +1160,8 @@ class GlobalTypeInfo implements CompilerPass {
         visitNamespacePropertyDeclaration(getProp);
       }
       // Other property
-      else if (isAnnotatedAsConst(getProp)) {
-        warnings.add(JSError.make(getProp, MISPLACED_CONST_ANNOTATION));
+      else {
+        visitOtherPropertyDeclaration(getProp);
       }
     }
 
@@ -1377,6 +1377,38 @@ class GlobalTypeInfo implements CompilerPass {
           new PropertyDef(getProp, null, null));
     }
 
+    private void visitOtherPropertyDeclaration(Node getProp) {
+      Preconditions.checkArgument(getProp.isGetProp());
+      if (isAnnotatedAsConst(getProp)) {
+        warnings.add(JSError.make(getProp, MISPLACED_CONST_ANNOTATION));
+      }
+      RawNominalType rawType = getRawTypeFromJSType(
+          simpleInferExprType(getProp.getFirstChild()));
+      if (rawType == null) {
+        return;
+      }
+      String pname = getProp.getLastChild().getString();
+      JSType declType = getDeclaredTypeOfNode(
+          NodeUtil.getBestJSDocInfo(getProp), currentScope);
+      if (declType != null) {
+        declType = declType.substituteGenericsWithUnknown();
+        if (mayWarnAboutExistingProp(rawType, pname, getProp, declType)) {
+          return;
+        }
+        rawType.addPropertyWhichMayNotBeOnAllInstances(pname, declType);
+      } else if (!rawType.mayHaveProp(pname)) {
+        rawType.addPropertyWhichMayNotBeOnAllInstances(pname, null);
+      }
+    }
+
+    private RawNominalType getRawTypeFromJSType(JSType t) {
+      if (t == null) {
+        return null;
+      }
+      NominalType nt = t.getNominalTypeIfSingletonObj();
+      return nt == null ? null : nt.getRawNominalType();
+    }
+
     private JSType getTypeAtPropDeclNode(Node declNode, JSDocInfo jsdoc) {
       Preconditions.checkArgument(!currentScope.isNamespace(declNode));
       Node initializer = NodeUtil.getInitializer(declNode);
@@ -1457,6 +1489,8 @@ class GlobalTypeInfo implements CompilerPass {
           return JSType.TRUE_TYPE;
         case Token.FALSE:
           return JSType.FALSE_TYPE;
+        case Token.THIS:
+          return this.currentScope.getDeclaredTypeOf("this");
         case Token.NAME: {
           String varName = n.getString();
           if (varName.equals("undefined")) {

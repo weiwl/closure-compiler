@@ -499,7 +499,17 @@ class CodeGenerator {
         }
         cc.endBlock(false);
         break;
-
+      case Token.ENUM_MEMBERS:
+        cc.beginBlock();
+        for (Node c = first; c != null; c = c.getNext()) {
+          add(c);
+          if (c.getNext() != null) {
+            add(",");
+          }
+          cc.endLine();
+        }
+        cc.endBlock(false);
+        break;
       case Token.GETTER_DEF:
       case Token.SETTER_DEF:
       case Token.MEMBER_FUNCTION_DEF:
@@ -1075,7 +1085,7 @@ class CodeGenerator {
         add(first);
         break;
       case Token.ARRAY_TYPE:
-        add(first);
+        addExpr(first, NodeUtil.precedence(Token.ARRAY_TYPE), context);
         add("[]");
         break;
       case Token.FUNCTION_TYPE:
@@ -1132,6 +1142,16 @@ class CodeGenerator {
           add(members);
         }
         break;
+      case Token.ENUM:
+        {
+          Preconditions.checkState(childCount == 2);
+          Node name = first;
+          Node members = last;
+          add("enum");
+          add(name);
+          add(members);
+          break;
+        }
       default:
         throw new RuntimeException("Unknown type " + Token.name(type) + "\n" + n.toStringTree());
     }

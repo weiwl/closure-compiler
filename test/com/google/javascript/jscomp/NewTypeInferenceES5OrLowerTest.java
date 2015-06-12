@@ -12090,4 +12090,172 @@ public final class NewTypeInferenceES5OrLowerTest extends NewTypeInferenceTestBa
         "x.obj = {};",
         "if (x['obj'] != null) {}"));
   }
+
+  public void testClasslessObjectsHaveBuiltinProperties() {
+    typeCheck(Joiner.on('\n').join(
+        "function f(/** !Object */ x) {",
+        "  return x.hasOwnProperty('asdf');",
+        "}"));
+
+    typeCheck(Joiner.on('\n').join(
+        "function f(/** { a: number } */ x) {",
+        "  return x.hasOwnProperty('asdf');",
+        "}"));
+
+    typeCheck(Joiner.on('\n').join(
+        "var x = {};",
+        "x.hasOwnProperty('asdf');"));
+
+    typeCheck(Joiner.on('\n').join(
+        "var x = /** @struct */ { a: 1 };",
+        "x.hasOwnProperty('asdf');"));
+
+    typeCheck(Joiner.on('\n').join(
+        "var x = /** @dict */ { 'a': 1 };",
+        "x['hasOwnProperty']('asdf');"));
+  }
+
+  public void testInferThisInSimpleInferExprType() {
+    typeCheck(Joiner.on('\n').join(
+        "/** @constructor */",
+        "function Foo() {",
+        "  /** @const */ var x = this",
+        "}"));
+
+    typeCheck(Joiner.on('\n').join(
+        "/** @constructor */",
+        "function Foo() {",
+        "  /** @type {string} */",
+        "  this.p = 'asdf';",
+        "}",
+        "Foo.prototype.m = function() {",
+        "  goog.bind(function() { this.p - 5; }, this);",
+        "};"),
+        NewTypeInference.INVALID_OPERAND_TYPE);
+  }
+
+  public void testNoInexistentPropWarningsForDicts() {
+    typeCheck(Joiner.on('\n').join(
+        "/** @constructor @dict */",
+        "function Foo() {}",
+        "(new Foo)['prop'] - 1;"));
+  }
+
+  public void testAddingPropsToExpandosInWhateverScopes() {
+    typeCheck(Joiner.on('\n').join(
+        "/** @constructor */",
+        "function Foo() {}",
+        "function f(/** !Foo */ x) {",
+        "  x.prop = 123;",
+        "}",
+        "(new Foo).prop - 1;"));
+
+    typeCheck(Joiner.on('\n').join(
+        "/** @constructor */",
+        "function Foo() {}",
+        "function f(/** !Foo */ x) {",
+        "  x.prop = 'asdf';", // we don't declare the type to be string
+        "}",
+        "(new Foo).prop - 1;"));
+
+    typeCheck(Joiner.on('\n').join(
+        "/** @constructor */",
+        "function Foo() {}",
+        "function f() {",
+        "  var x = new Foo;",
+        "  x.prop = 123;", // x not inferred as Foo during GTI
+        "}",
+        "(new Foo).prop - 1;"),
+        TypeCheck.INEXISTENT_PROPERTY);
+
+    typeCheck(Joiner.on('\n').join(
+        "/** @constructor */",
+        "function Foo() {}",
+        "function f(/** !Foo */ x) {",
+        "  /** @const */",
+        "  x.prop = 123;",
+        "}",
+        "(new Foo).prop - 1;"),
+        GlobalTypeInfo.MISPLACED_CONST_ANNOTATION);
+
+    typeCheck(Joiner.on('\n').join(
+        "/** @constructor */",
+        "function Foo() {}",
+        "function f(/** !Foo */ x) {",
+        "  /** @type {string} */",
+        "  x.prop = 'asdf';",
+        "}",
+        "(new Foo).prop - 123;"),
+        NewTypeInference.INVALID_OPERAND_TYPE);
+
+    typeCheck(Joiner.on('\n').join(
+        "/** @constructor */",
+        "function High() {}",
+        "function f(/** !High */ x) {",
+        "  /** @type {string} */",
+        "  x.prop = 'asdf';",
+        "}",
+        "/** @constructor @extends {High} */",
+        "function Low() {}",
+        "(new Low).prop - 123;"),
+        NewTypeInference.INVALID_OPERAND_TYPE);
+
+    typeCheck(Joiner.on('\n').join(
+        "/** @constructor */",
+        "function Foo() {",
+        "  /** @type {number} */",
+        "  this.prop = 123;",
+        "}",
+        "function f(/** !Foo */ x) {",
+        "  /** @type {string} */",
+        "  x.prop = 'asdf';",
+        "}"),
+        GlobalTypeInfo.REDECLARED_PROPERTY,
+        NewTypeInference.MISTYPED_ASSIGN_RHS);
+
+    typeCheck(Joiner.on('\n').join(
+        "/** @constructor */",
+        "function Foo() {",
+        "  /** @type {number} */",
+        "  this.prop = 123;",
+        "}",
+        "function f(/** !Foo */ x) {",
+        "  x.prop = 'asdf';",
+        "}"),
+        NewTypeInference.MISTYPED_ASSIGN_RHS);
+
+    typeCheck(Joiner.on('\n').join(
+        "/** @constructor */",
+        "function Foo() {}",
+        "/** @type {number} */",
+        "Foo.prototype.prop = 123;",
+        "function f(/** !Foo */ x) {",
+        "  x.prop = 'asdf';",
+        "}"),
+        NewTypeInference.MISTYPED_ASSIGN_RHS);
+
+    typeCheck(Joiner.on('\n').join(
+        "/**",
+        " * @constructor",
+        " * @template T",
+        " */",
+        "function Foo() {}",
+        "function f(/** !Foo<string> */ x) {",
+        "  x.prop = 123;",
+        "}",
+        "(new Foo).prop - 1;"));
+
+    typeCheck(Joiner.on('\n').join(
+        "/**",
+        " * @constructor",
+        " * @template T",
+        " */",
+        "function Foo(/** T */ x) {}",
+        "/** @template U */",
+        "function addProp(/** !Foo<U> */ x, /** U */ y) {",
+        "  /** @type {U} */ x.prop = y;",
+        "  return x;",
+        "}",
+        "addProp(new Foo(1), 5).prop - 1;"));
+  }
 }
