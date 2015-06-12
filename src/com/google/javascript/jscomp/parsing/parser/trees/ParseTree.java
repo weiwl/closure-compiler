@@ -130,8 +130,6 @@ public class ParseTree {
   public TypedParameterTree asTypedParameter() { return (TypedParameterTree) this; }
   public ParameterizedTypeTree asParameterizedType() { return (ParameterizedTypeTree) this; }
   public ArrayTypeTree asArrayType() { return (ArrayTypeTree) this; }
-  public UnionTypeTree asUnionType() { return (UnionTypeTree) this; }
-  public FunctionTypeTree asFunctionType() { return (FunctionTypeTree) this; }
   public UnaryExpressionTree asUnaryExpression() { return (UnaryExpressionTree) this; }
   public VariableDeclarationListTree asVariableDeclarationList() {
     return (VariableDeclarationListTree) this; }
@@ -143,9 +141,6 @@ public class ParseTree {
   public YieldExpressionTree asYieldStatement() { return (YieldExpressionTree) this; }
   public InterfaceDeclarationTree asInterfaceDeclaration() {
     return (InterfaceDeclarationTree) this;
-  }
-  public EnumDeclarationTree asEnumDeclaration() {
-    return (EnumDeclarationTree) this;
   }
 
   public boolean isPattern() {

@@ -249,13 +249,13 @@ ServiceWorkerGlobalScope.prototype.onactivate;
 ServiceWorkerGlobalScope.prototype.onfetch;
 
 /**
- * TODO(mtragut): This handler should get a custom event in the future.
+ * TODO(user): This handler should get a custom event in the future.
  * @type {?function(!Event)}
  */
 ServiceWorkerGlobalScope.prototype.onbeforeevicted;
 
 /**
- * TODO(mtragut): This handler should get a custom event in the future.
+ * TODO(user): This handler should get a custom event in the future.
  * @type {?function(!Event)}
  */
 ServiceWorkerGlobalScope.prototype.onevicted;
@@ -285,7 +285,7 @@ ServiceWorkerClient.prototype.visibilityState;
 ServiceWorkerClient.prototype.url;
 
 /**
- * // TODO(mtragut): Possibly replace the type with enum ContextFrameType once
+ * // TODO(user): Possibly replace the type with enum ContextFrameType once
  * the enum is defined.
  * @type {string}
  */
@@ -309,7 +309,7 @@ function ServiceWorkerClients() {}
 /**
  * Deprecated in Chrome M43+, use matchAll instead. Reference:
  * https://github.com/slightlyoff/ServiceWorker/issues/610.
- * TODO(joeltine): Remove when getAll is fully deprecated.
+ * TODO(user): Remove when getAll is fully deprecated.
  * @param {ServiceWorkerClientQueryOptions=} opt_options
  * @return {!Promise<!Array<!ServiceWorkerClient>>}
  */

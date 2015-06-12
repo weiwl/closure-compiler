@@ -20,7 +20,7 @@ import java.util.AbstractSet;
 import java.util.Set;
 
 /** A persistent set with non-destructive additions and removals */
-abstract class PersistentSet<K> extends AbstractSet<K> {
+public abstract class PersistentSet<K> extends AbstractSet<K> {
 
   private static PersistentSet EMPTY;
 

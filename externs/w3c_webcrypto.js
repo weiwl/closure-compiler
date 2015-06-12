@@ -19,7 +19,6 @@
  * @fileoverview Definitions for W3C's Web Cryptography specification
  * http://www.w3.org/TR/webCryptoAPI
  * @externs
- * @author chrismoon@google.com (Chris Moon)
  * This file was created using the best practices as described in:
  *     chrome_extensions.js
  */

@@ -2237,7 +2237,8 @@ final class NewTypeInference implements CompilerPass {
     JSType result = pickReqObjType(objLit);
     for (Node prop : objLit.children()) {
       if (isStruct && prop.isQuotedString()) {
-        warnings.add(JSError.make(prop, TypeCheck.ILLEGAL_OBJLIT_KEY, "struct"));
+        warnings.add(
+            JSError.make(prop, TypeCheck.ILLEGAL_OBJLIT_KEY, "struct"));
       } else if (isDict && !prop.isQuotedString()) {
         warnings.add(JSError.make(prop, TypeCheck.ILLEGAL_OBJLIT_KEY, "dict"));
       }
@@ -2260,7 +2261,8 @@ final class NewTypeInference implements CompilerPass {
           specialPropName = SETTER_PREFIX + pname;
           propType = pair.type;
         }
-        result = result.withProperty(new QualifiedName(specialPropName), propType);
+        result = result.withProperty(
+            new QualifiedName(specialPropName), propType);
         env = pair.env;
       } else {
         QualifiedName qname = new QualifiedName(pname);
@@ -2276,7 +2278,8 @@ final class NewTypeInference implements CompilerPass {
         } else {
           reqPtype = specPtype = JSType.UNKNOWN;
         }
-        EnvTypePair pair = analyzeExprFwd(prop.getFirstChild(), env, reqPtype, specPtype);
+        EnvTypePair pair =
+            analyzeExprFwd(prop.getFirstChild(), env, reqPtype, specPtype);
         if (jsdocType != null) {
           // First declare it; then set the maybe more precise inferred type
           result = result.withDeclaredProperty(qname, jsdocType, false);
@@ -2565,9 +2568,8 @@ final class NewTypeInference implements CompilerPass {
       return new EnvTypePair(pair.env, recvType.getProp(getterPname));
     }
     JSType resultType = recvType.getProp(propQname);
-    if (!propAccessNode.getParent().isExprResult()
-        && !specializedType.isTruthy() && !specializedType.isFalsy()
-        && !recvType.isDict()) {
+    if (!propAccessNode.getParent().isExprResult() &&
+        !specializedType.isTruthy() && !specializedType.isFalsy()) {
       if (!recvType.mayHaveProp(propQname)) {
         // TODO(dimvar): maybe don't warn if the getprop is inside a typeof,
         // see testMissingProperty8 (who relies on that for prop checking?)

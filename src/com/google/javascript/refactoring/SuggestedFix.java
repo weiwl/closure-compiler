@@ -408,13 +408,7 @@ public final class SuggestedFix {
             position == i, "The specified position must be less than the number of arguments.");
         startPosition = n.getSourceOffset() + n.getLength() - 1;
       } else {
-        JSDocInfo jsDoc = argument.getJSDocInfo();
-        if (jsDoc != null) {
-          // Remove any cast or associated JS Doc if it exists.
-          startPosition = jsDoc.getOriginalCommentPosition();
-        } else {
-          startPosition = argument.getSourceOffset();
-        }
+        startPosition = argument.getSourceOffset();
       }
 
       String newContent = Joiner.on(", ").join(args);

@@ -16,7 +16,6 @@
 package com.google.javascript.jscomp;
 
 import com.google.common.collect.ImmutableList;
-import com.google.javascript.jscomp.CompilerOptions.LanguageMode;
 import com.google.javascript.jscomp.parsing.JsDocInfoParser;
 import com.google.javascript.jscomp.testing.NodeSubject;
 import com.google.javascript.rhino.JSTypeExpression;
@@ -58,9 +57,10 @@ public final class ConvertDeclaredTypesToJSDocTest extends TestCase {
     Compiler compiler = new Compiler();
 
     CompilerOptions options = new CompilerOptions();
-    options.setLanguageIn(LanguageMode.ECMASCRIPT6_TYPED);
     compiler.init(
-        ImmutableList.<SourceFile>of(), ImmutableList.of(SourceFile.fromCode("js", js)), options);
+        ImmutableList.<SourceFile>of(),
+        ImmutableList.of(SourceFile.fromCode("js", js)),
+        options);
     compiler.parseInputs();
 
     CompilerPass pass = new ConvertDeclaredTypesToJSDoc(compiler);
